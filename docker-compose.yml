@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:16
+    container_name: todo_api_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: todo_user
+      POSTGRES_PASSWORD: todo_pass
+      POSTGRES_DB: todo_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - todo_pgdata:/var/lib/postgresql/data
+
+volumes:
+  todo_pgdata:

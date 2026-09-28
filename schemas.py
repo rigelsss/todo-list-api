@@ -14,4 +14,15 @@ class TokenResponse(BaseModel):
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
+
+class TodoCreate(BaseModel):
+    title: str
+    description: str
+
+class TodoResponse(BaseModel):
+    id: int
+    title: str
+    description: str
+    is_completed: bool
     
+

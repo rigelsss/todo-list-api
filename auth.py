@@ -3,6 +3,11 @@ from datetime import timedelta, datetime, timezone
 import jwt
 from passlib.context import CryptContext
 from dotenv import load_dotenv
+from fastapi import HTTPException, Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from crud import get_user_by_id
+
+security = HTTPBearer()
 
 load_dotenv()
 
@@ -67,4 +72,22 @@ def decode_access_token(token: str) -> dict:
     """
     decoded_jwt = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
     return decoded_jwt
+
+def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    token = credentials.credentials
+    try:
+        payload = decode_access_token(token)
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token has expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+        
+    user_id = payload.get("user_id")
+    if user_id is None:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    user = get_user_by_id(user_id)
+    if user is None:
+        raise HTTPException(status_code=401, detail="User not found")
+    return user
     
+

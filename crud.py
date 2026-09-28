@@ -27,4 +27,14 @@ def create_user(name: str, email: str, hashed_password: str):
     cursor.close()
     connection.close()
     return user
+
+def create_todo(user_id: int, title: str, description: str):
+    connection = get_connection()
+    cursor = connection.cursor()
+    cursor.execute("INSERT INTO todos (user_id, title, description) VALUES (%s, %s, %s) RETURNING id, title, description, is_completed", (user_id, title, description,))
+    todo_created = cursor.fetchone()
+    connection.commit()
+    cursor.close()
+    connection.close()
+    return todo_created
     

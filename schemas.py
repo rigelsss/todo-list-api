@@ -10,3 +10,8 @@ class UserRegister(BaseModel):
     
 class TokenResponse(BaseModel):
     token: str
+    
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+    

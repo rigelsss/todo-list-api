@@ -9,6 +9,14 @@ def get_user_by_email(email: str):
     connection.close()
     return user
 
+def get_user_by_id(user_id: int):
+    connection = get_connection()
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM users WHERE id = %s", (user_id,))
+    user = cursor.fetchone()
+    cursor.close()
+    connection.close()
+    return user
 
 def create_user(name: str, email: str, hashed_password: str):
     connection = get_connection()

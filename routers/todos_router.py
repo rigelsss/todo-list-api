@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends, Query
-from schemas import TodoCreate, TodoResponse, TodoListResponse
-from crud import create_todo, get_todos_by_user, count_todos_by_user
+from fastapi import APIRouter, Depends, Query, HTTPException
+from schemas import TodoCreate, TodoResponse, TodoListResponse, TodoUpdate
+from crud import create_todo, get_todos_by_user, count_todos_by_user, get_todo_by_id, update_todo
 from auth import get_current_user
 
 router = APIRouter()
@@ -33,4 +33,26 @@ def list_todos(
         page=page,
         limit=limit,
         total=total
+    )
+    
+@router.put("/todos/{todo_id}", response_model=TodoResponse)
+def update_existing_todo(todo_id: int, todo: TodoUpdate, current_user = Depends(get_current_user)):
+    existing_todo = get_todo_by_id(todo_id)
+    if not existing_todo:
+        raise HTTPException(status_code=404, detail="Todo not found")
+    
+    if existing_todo[1] != current_user[0]:
+        raise HTTPException(status_code=403, detail="Not allowed to modify this todo")
+    
+    fields = todo.model_dump(exclude_unset=True)
+    
+    if not fields:
+        raise HTTPException(status_code=400, detail="No fields to update")
+
+    updated_todo = update_todo(todo_id, fields)
+    return TodoResponse(
+        id=updated_todo[0],
+        title=updated_todo[1],
+        description=updated_todo[2],
+        is_completed=updated_todo[3]
     )

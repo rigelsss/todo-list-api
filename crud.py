@@ -55,3 +55,36 @@ def count_todos_by_user(user_id: int):
     cursor.close()
     connection.close()
     return count
+
+def get_todo_by_id(todo_id: int):
+    connection = get_connection()
+    cursor = connection.cursor()
+    cursor.execute("SELECT id, user_id, title, description, is_completed FROM todos WHERE id = %s", (todo_id,))
+    todo = cursor.fetchone()
+    cursor.close()
+    connection.close()
+    return todo
+
+
+def update_todo(todo_id: int, fields: dict):
+    set_clauses = []
+    values = []
+    
+    for column, value in fields.items():
+        set_clauses.append(f"{column} = %s")
+        values.append(value)
+        
+    set_clause = ", ".join(set_clauses)
+    values.append(todo_id)
+    
+    connection = get_connection()
+    cursor = connection.cursor()
+    cursor.execute(f"UPDATE todos SET {set_clause} WHERE id = %s RETURNING id, title, description, is_completed", values)
+    
+    updated_todo = cursor.fetchone()
+    
+    connection.commit()
+    cursor.close()
+    connection.close()
+    
+    return updated_todo

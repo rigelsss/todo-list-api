@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from pydantic import EmailStr
-
+from typing import List
 
 class UserRegister(BaseModel):
     name: str
@@ -24,5 +24,11 @@ class TodoResponse(BaseModel):
     title: str
     description: str
     is_completed: bool
+
+class TodoListResponse(BaseModel):
+    data: List[TodoResponse]
+    page: int
+    limit: int
+    total: int
     
 

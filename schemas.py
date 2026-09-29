@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from pydantic import EmailStr
-from typing import List
+from typing import List, Optional
 
 class UserRegister(BaseModel):
     name: str
@@ -30,5 +30,10 @@ class TodoListResponse(BaseModel):
     page: int
     limit: int
     total: int
+    
+class TodoUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    is_completed: Optional[bool] = None
     
 

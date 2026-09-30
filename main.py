@@ -22,16 +22,17 @@ app = FastAPI()
 
 @app.exception_handler(psycopg2.OperationalError)
 def database_error_handler(request: Request, exc: psycopg2.OperationalError):
-    return JSONResponse(
-        status_code=503,
-        content={"detail": "Database unavailable. Please try again later."}
-    )
+    return error_response(503, "Database unavailable. Please try again later.")
 
 @app.exception_handler(HTTPException)
 def http_exception_handler(request: Request, exc: HTTPException):
     return error_response(exc.status_code, exc.detail)
 
-
-
+@app.exception_handler(RequestValidationError)
+def validation_exception_handler(request: Request, exc: RequestValidationError):
+    details = [{"field": err["loc"][-1], "message": err["msg"]} for err in exc.errors()]
+    
+    return error_response(422, "Validation failed", details)
+    
 app.include_router(router=auth_router.router)
 app.include_router(router=todos_router.router)

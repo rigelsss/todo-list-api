@@ -18,7 +18,7 @@ def create_new_todo(todo: TodoCreate, current_user = Depends(get_current_user)):
 @router.get("/todos", response_model=TodoListResponse)
 def list_todos(
     page: int = Query(1, ge=1),
-    limit: int = Query(10, ge=1),
+    limit: int = Query(10, ge=1, le=100),
     current_user = Depends(get_current_user)):
     
     user_id = current_user[0]

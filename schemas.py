@@ -1,11 +1,10 @@
-from pydantic import BaseModel
-from pydantic import EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from typing import List, Optional
 
 class UserRegister(BaseModel):
-    name: str
+    name: str = Field(min_length=4, max_length=255)
     email: EmailStr
-    password: str
+    password: str = Field(min_length=4)
     
     
 class TokenResponse(BaseModel):
@@ -16,8 +15,8 @@ class UserLogin(BaseModel):
     password: str
 
 class TodoCreate(BaseModel):
-    title: str
-    description: str
+    title: str = Field(min_length=1, max_length=255)
+    description: str = Field(min_length=1)
 
 class TodoResponse(BaseModel):
     id: int
@@ -32,8 +31,8 @@ class TodoListResponse(BaseModel):
     total: int
     
 class TodoUpdate(BaseModel):
-    title: Optional[str] = None
-    description: Optional[str] = None
+    title: Optional[str] = Field(default=None, min_length=1, max_length=255)
+    description: Optional[str] = Field(default=None, min_length=1)
     is_completed: Optional[bool] = None
     
 

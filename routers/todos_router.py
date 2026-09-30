@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Query, HTTPException
 from schemas import TodoCreate, TodoResponse, TodoListResponse, TodoUpdate
-from crud import create_todo, get_todos_by_user, count_todos_by_user, get_todo_by_id, update_todo
+from crud import create_todo, get_todos_by_user, count_todos_by_user, get_todo_by_id, update_todo, delete_todo
 from auth import get_current_user
 
 router = APIRouter()
@@ -56,3 +56,16 @@ def update_existing_todo(todo_id: int, todo: TodoUpdate, current_user = Depends(
         description=updated_todo[2],
         is_completed=updated_todo[3]
     )
+    
+@router.delete("/todos/{todo_id}")
+def delete_existing_todo(todo_id: int, current_user = Depends(get_current_user)):
+    
+    existing_todo = get_todo_by_id(todo_id)
+    if not existing_todo:
+        raise HTTPException(status_code=404, detail="Todo not found")
+    
+    if existing_todo[1] != current_user[0]:
+        raise HTTPException(status_code=403, detail="Not allowed to delete this todo")
+    
+    delete_todo(todo_id)
+    return {"detail": "Todo deleted successfully"}

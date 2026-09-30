@@ -1,8 +1,22 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse
 from routers import auth_router, todos_router
 import psycopg2
+from fastapi.exceptions import RequestValidationError
+from http import HTTPStatus
 
+
+def error_response(status_code: int, message: str, details=None):
+    return JSONResponse(
+        status_code=status_code,
+        content={
+            "error": {
+                "code": HTTPStatus(status_code).name,
+                "message": message,
+                "details": details
+            }
+        }
+    )
 
 app = FastAPI()
 

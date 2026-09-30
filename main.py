@@ -27,6 +27,11 @@ def database_error_handler(request: Request, exc: psycopg2.OperationalError):
         content={"detail": "Database unavailable. Please try again later."}
     )
 
+@app.exception_handler(HTTPException)
+def http_exception_handler(request: Request, exc: HTTPException):
+    return error_response(exc.status_code, exc.detail)
+
+
 
 app.include_router(router=auth_router.router)
 app.include_router(router=todos_router.router)

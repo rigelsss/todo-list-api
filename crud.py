@@ -88,3 +88,12 @@ def update_todo(todo_id: int, fields: dict):
     connection.close()
     
     return updated_todo
+
+
+def delete_todo(todo_id: int):
+    connection = get_connection()
+    cursor = connection.cursor()
+    cursor.execute("DELETE FROM todos WHERE id = %s", (todo_id,))
+    connection.commit()
+    cursor.close()
+    connection.close()

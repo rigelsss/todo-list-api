@@ -1,69 +1,48 @@
-from db import get_connection
+from db import get_cursor
 
 def get_user_by_email(email: str):
-    connection = get_connection()
-    cursor = connection.cursor()
-    cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
-    user = cursor.fetchone()
-    cursor.close()
-    connection.close()
-    return user
+    with get_cursor() as cursor:
+        cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+        return cursor.fetchone()
 
+    
 def get_user_by_id(user_id: int):
-    connection = get_connection()
-    cursor = connection.cursor()
-    cursor.execute("SELECT * FROM users WHERE id = %s", (user_id,))
-    user = cursor.fetchone()
-    cursor.close()
-    connection.close()
-    return user
+    with get_cursor() as cursor:
+        cursor.execute("SELECT * FROM users WHERE id = %s", (user_id,))
+        return cursor.fetchone()
 
 def create_user(name: str, email: str, hashed_password: str):
-    connection = get_connection()
-    cursor = connection.cursor()
-    cursor.execute("INSERT INTO users (name, email, password_hash) VALUES (%s, %s, %s) RETURNING id, name, email", (name, email, hashed_password))
-    user = cursor.fetchone()
-    connection.commit()
-    cursor.close()
-    connection.close()
-    return user
+    with get_cursor() as cursor:
+        cursor.execute("INSERT INTO users (name, email, password_hash) VALUES (%s, %s, %s) RETURNING id, name, email", (name, email, hashed_password))
+        created_user = cursor.fetchone()
+        return created_user
+
+
 
 def create_todo(user_id: int, title: str, description: str):
-    connection = get_connection()
-    cursor = connection.cursor()
-    cursor.execute("INSERT INTO todos (user_id, title, description) VALUES (%s, %s, %s) RETURNING id, title, description, is_completed", (user_id, title, description,))
-    todo_created = cursor.fetchone()
-    connection.commit()
-    cursor.close()
-    connection.close()
-    return todo_created
+    with get_cursor() as cursor:
+        cursor.execute("INSERT INTO todos (user_id, title, description) VALUES (%s, %s, %s) RETURNING id, title, description, is_completed", (user_id, title, description,))
+        todo_created = cursor.fetchone()
+        return todo_created
 
 def get_todos_by_user(user_id: int, limit: int, offset: int):
-    connection = get_connection()
-    cursor = connection.cursor()
-    cursor.execute("SELECT id, title, description, is_completed FROM todos WHERE user_id = %s ORDER BY id LIMIT %s OFFSET %s", (user_id, limit, offset))
-    todos = cursor.fetchall()
-    cursor.close()
-    connection.close()
-    return todos
+    with get_cursor() as cursor:
+        cursor.execute("SELECT id, title, description, is_completed FROM todos WHERE user_id = %s ORDER BY id LIMIT %s OFFSET %s", (user_id, limit, offset))
+        todos = cursor.fetchall()
+        return todos
 
 def count_todos_by_user(user_id: int):
-    connection = get_connection()
-    cursor = connection.cursor()
-    cursor.execute("SELECT COUNT(*) FROM todos WHERE user_id = %s", (user_id,))
-    count = cursor.fetchone()[0]
-    cursor.close()
-    connection.close()
-    return count
+    with get_cursor() as cursor:
+        cursor.execute("SELECT COUNT(*) FROM todos WHERE user_id = %s", (user_id,))
+        count = cursor.fetchone()[0]
+        return count
 
 def get_todo_by_id(todo_id: int):
-    connection = get_connection()
-    cursor = connection.cursor()
-    cursor.execute("SELECT id, user_id, title, description, is_completed FROM todos WHERE id = %s", (todo_id,))
-    todo = cursor.fetchone()
-    cursor.close()
-    connection.close()
-    return todo
+    with get_cursor() as cursor:
+        
+        cursor.execute("SELECT id, user_id, title, description, is_completed FROM todos WHERE id = %s", (todo_id,))
+        todo = cursor.fetchone()
+        return todo
 
 
 def update_todo(todo_id: int, fields: dict):
@@ -77,23 +56,14 @@ def update_todo(todo_id: int, fields: dict):
     set_clause = ", ".join(set_clauses)
     values.append(todo_id)
     
-    connection = get_connection()
-    cursor = connection.cursor()
-    cursor.execute(f"UPDATE todos SET {set_clause} WHERE id = %s RETURNING id, title, description, is_completed", values)
-    
-    updated_todo = cursor.fetchone()
-    
-    connection.commit()
-    cursor.close()
-    connection.close()
-    
-    return updated_todo
+    with get_cursor() as cursor:
+        cursor.execute(f"UPDATE todos SET {set_clause} WHERE id = %s RETURNING id, title, description, is_completed", values)
+        updated_todo = cursor.fetchone()   
+        return updated_todo
 
 
 def delete_todo(todo_id: int):
-    connection = get_connection()
-    cursor = connection.cursor()
-    cursor.execute("DELETE FROM todos WHERE id = %s", (todo_id,))
-    connection.commit()
-    cursor.close()
-    connection.close()
+    with get_cursor() as cursor:
+        cursor.execute("DELETE FROM todos WHERE id = %s", (todo_id,))
+        return 
+    

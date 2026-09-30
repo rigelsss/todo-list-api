@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 import os
 import psycopg2
+from contextlib import contextmanager
 
 load_dotenv()
 
@@ -13,3 +14,17 @@ def get_connection():
         password=os.getenv("DB_PASSWORD")
     )
     return connection
+
+@contextmanager
+def get_cursor():
+    connection = get_connection()
+    cursor = connection.cursor()
+    try:
+        yield cursor
+        connection.commit()
+    except:
+        connection.rollback()
+        raise
+    finally:
+        cursor.close()
+        connection.close()

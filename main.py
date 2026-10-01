@@ -12,6 +12,7 @@ def error_response(status_code: int, message: str, details=None):
         content={
             "error": {
                 "code": HTTPStatus(status_code).name,
+                "status_code": status_code,
                 "message": message,
                 "details": details
             }
